@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %} Главная страница {% endblock %}
+{% block content %}
+<body>
+    <header>
+        <h1>Управление рассылками</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Статистика</h2>
+            <div class="statistics">
+                <div class="stat-card">
+                    <h3>Всего рассылок</h3>
+                    <p>{{ total_mailings }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Активные рассылки</h3>
+                    <p>{{ active_mailings }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Уникальных получателей</h3>
+                    <p>{{ unique_recipients }}</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Управление рассылками</p>
+    </footer>
+</body>
+{% endblock %}

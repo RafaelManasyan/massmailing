@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %} Мои получатели {% endblock %}
+{% block content %}
+<h1>Список получателей рассылок</h1>
+<p><a href="{% url 'recipients:recipient_create' %}">Добавить получателя</a></p>
+{% if object_list %}
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Почта</th>
+            <th>Имя и Фамилия</th>
+            <th>Комментарий</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for recipient in object_list %}
+            <tr>
+                <td>{{ recipient.id }}</td>
+                <td>{{ recipient.email }}</td>
+                <td>{{ recipient.full_name }}</td>
+                <td>{{ recipient.comment }}</td>
+                <td><a href="{% url 'recipients:recipient_delete' recipient.id %}">Удалить</a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>Список получателей пуст.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Статистика рассылки{% endblock %}
+
+{% block content %}
+<h2>Статистика рассылки: {{ mailing.id }}</h2>
+
+<ul>
+    <li><strong>Тема сообщения:</strong> {{ mailing.message.topic }}</li>
+    <li><strong>Дата начала рассылки:</strong> {{ mailing.first_sending_datetime }}</li>
+    <li><strong>Дата завершения рассылки:</strong> {{ mailing.mailing_end_datetime }}</li>
+    <li><strong>Статус рассылки:</strong> {{ mailing.get_status_display }}</li>
+</ul>
+
+<h3>Попытки отправки</h3>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Получатель</th>
+            <th>Статус</th>
+            <th>Ответ сервера</th>
+            <th>Дата попытки</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attempt in mailing.mailingattempt_set.all %}
+        <tr>
+            <td>{{ attempt.id }}</td>
+            <td>{{ attempt.recipient.email }}</td>
+            <td>{{ attempt.get_attempt_status_display }}</td>
+            <td>{{ attempt.mail_reply }}</td>
+            <td>{{ attempt.attempt_datetime }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">Попытки отправки отсутствуют.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Итоги</h3>
+<ul>
+    <li><strong>Успешные попытки:</strong> {{ successful_attempts }}</li>
+    <li><strong>Неуспешные попытки:</strong> {{ unsuccessful_attempts }}</li>
+    <li><strong>Всего попыток:</strong> {{ total_attempts }}</li>
+</ul>
+
+<a href="{% url 'recipients:mailing_list' %}">Назад к списку рассылок</a>
+{% endblock %}

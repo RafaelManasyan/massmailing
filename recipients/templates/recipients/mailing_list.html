@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %} Мои рассылки {% endblock %}
+{% block content %}
+<h1>Список рассылок</h1>
+<p><a href="{% url 'recipients:mailing_create' %}">Создать рассылку</a></p>
+{% if object_list %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата первого отправления</th>
+                <th>Дата окончания рассылки</th>
+                <th>Статус</th>
+                <th>Сообщение</th>
+                <th>Количество получателей</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mailing in object_list %}
+                <tr>
+                    <td><a href="{% url 'recipients:mailing_detail' mailing.id %}"> {{ mailing.id }}</a></td>
+                    <td>{{ mailing.first_sending_datetime }}</td>
+                    <td>{{ mailing.mailing_end_datetime }}</td>
+                    <td>{{ mailing.get_status_display }}</td>
+                    <td>{{ mailing.message }}</td>
+                    <td>{{ mailing.recipients.count }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Список рассылок пуст.</p>
+{% endif %}
+{% endblock %}

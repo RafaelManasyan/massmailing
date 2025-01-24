@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Детали рассылки{% endblock %}
+
+{% block content %}
+<h2>Детали рассылки</h2>
+{% if not mailing.status == 'completed' %}
+<form method="post" action="{% url 'recipients:mailing_start' mailing.id %}">
+    {% csrf_token %}
+    <button type="submit">Запустить рассылку</button>
+</form>
+{% endif %}
+<p><a href="{% url 'recipients:mailing_statistics' mailing.id %}">Посмотреть статистику</a></p>
+{% if not mailing.status == 'completed' %}
+<p><a href="{% url 'recipients:mailing_update' mailing.id %}">Редактировать</a></p>
+{% endif %}
+<p><a href="{% url 'recipients:mailing_delete' mailing.id %}">Удалить</a></p>
+<ul>
+    <li>ID: {{ object.id }}</li>
+    <li>Дата первого отправления: {{ object.first_sending_datetime }}</li>
+    <li>Дата окончания: {{ object.mailing_end_datetime }}</li>
+    <li>Статус: {{ object.get_status_display }}</li>
+    <li>Сообщение: {{ object.message }}</li>
+    <li>Получатели: {{ object.recipients.all|join:", " }}</li>
+</ul>
+<a href="{% url 'recipients:mailing_list' %}">Назад к списку</a>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Мой сайт{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="/">Мой сайт</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'recipients:home' %}">Главная</a></li>
+                    {% if not user.is_authenticated %}
+                    <li><a href="{% url 'account_login' %}">Вход</a></li>
+                    <li><a href="{% url 'account_signup' %}">Регистрация</a></li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'recipients:mailing_list' %}">Рассылки</a></li>
+                        <li><a href="{% url 'recipients:message_list' %}">Сообщения</a></li>
+                        <li><a href="{% url 'recipients:recipient_list' %}">Получатели</a></li>
+                        <li><a href="{% url 'account_logout' %}">Выход</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <main class="container">
+        {% block content %}
+        <!-- Контент страницы -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Мой сайт. Все права защищены.</p>
+        </div>
+    </footer>
+</body>
+</html>
