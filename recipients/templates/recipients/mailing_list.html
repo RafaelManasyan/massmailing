@@ -17,6 +17,7 @@
                 <th>Кол-во получателей</th>
                 {% if mailing.status != 'completed' and user.is_manager %}
                 <th>Действия</th>
+                <th>Владелец</th>
                 {% endif %}
             </tr>
         </thead>
@@ -37,6 +38,7 @@
                     </form>
                     {% endif %}
                     </td>
+                    <td>{{ mailing.user }}</td>
                 </tr>
             {% endfor %}
         </tbody>
