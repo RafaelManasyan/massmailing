@@ -15,6 +15,13 @@ from users.models import User
 
 
 def home_view(request):
+    """
+    Представление для главной страницы с отображением статистики.
+    - Если пользователь авторизован:
+    * Менеджеры видят статистику по всем рассылкам и получателям.
+    * Обычные пользователи видят только свою статистику.
+    - Если пользователь не авторизован, все показатели равны нулю.
+    """
     user = request.user
 
     if user.is_authenticated:
@@ -42,6 +49,11 @@ def home_view(request):
 
 @method_decorator(cache_page(60*15), name='dispatch')
 class MailingListView(LoginRequiredMixin, ListView):
+    """
+    Представление для отображения списка рассылок.
+    - Кэшируется на 15 минут для оптимизации производительности.
+    - Менеджеры видят все рассылки, а обычные пользователи — только свои.
+    """
     model = Mailing
 
     def get_queryset(self):
@@ -51,6 +63,12 @@ class MailingListView(LoginRequiredMixin, ListView):
 
 
 class MailingCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Представление для создания новых рассылок.
+    - Доступно только для пользователей с правом добавления рассылок.
+    - Автоматически связывает новую рассылку с текущим пользователем.
+    - Ограничивает выбор сообщений и получателей только для текущего пользователя.
+    """
     model = Mailing
     fields = ['message', 'recipients']
     success_url = reverse_lazy('recipients:mailing_list')
@@ -73,6 +91,8 @@ class MailingCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
 
 
 class MailingUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Представление для редактирования рассылок. Доступно только пользователю, который создал рассылку. Завершённые
+    рассылки редактировать нельзя. Также добавляется контекст, указывающий, что это форма редактирования."""
     model = Mailing
     fields = ['message', 'recipients']
     success_url = reverse_lazy('recipients:mailing_list')
@@ -101,6 +121,7 @@ class MailingDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
 
 
 class MailingDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """Представление для отображения деталей конкретной рассылки. Менеджеры могут видеть все рассылки, а пользователи — только свои"""
     model = Mailing
     permission_required = 'recipients.can_view_mailing_detail'
 
@@ -132,6 +153,7 @@ class MessageCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
 
 
 class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """Представление для редактирования сообщений. Пользователи могут редактировать только свои сообщения."""
     model = Message
     fields = ['topic', 'body',]
     success_url = reverse_lazy('recipients:message_list')
@@ -142,6 +164,7 @@ class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
 
 
 class MessageDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """Представление для удаления сообщений. Доступно только пользователям с правом удаления сообщений. Пользователи могут удалять только свои сообщения."""
     model = Message
     success_url = reverse_lazy('recipients:message_list')
     permission_required = 'recipients.delete_message'
@@ -151,6 +174,7 @@ class MessageDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
 
 
 class MessageDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """Представление для просмотра деталей сообщения. Менеджеры видят все сообщения, а пользователи — только свои."""
     model = Message
     context_object_name = 'message'
     permission_required = 'recipients.view_message'
@@ -162,6 +186,7 @@ class MessageDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
 
 
 class RecipientListView(LoginRequiredMixin, ListView):
+    """Представление для отображения списка клиентов. Менеджеры видят всех клиентов, а пользователи — только своих."""
     model = Recipient
 
     def get_queryset(self):
@@ -172,6 +197,7 @@ class RecipientListView(LoginRequiredMixin, ListView):
 
 
 class RecipientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """“Представление для создания новых клиентов. Автоматически связывает клиента с текущим пользователем. Доступно только для пользователей с правом добавления клиентов.”"""
     model = Recipient
     fields = ['email', 'full_name', 'comment',]
     success_url = reverse_lazy('recipients:recipient_list')
@@ -183,6 +209,7 @@ class RecipientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
 
 
 class RecipientDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """Представление для удаления клиентов. Пользователи могут удалять только своих клиентов. Доступно только с соответствующими правами."""
     model = Recipient
     success_url = reverse_lazy('recipients:recipient_list')
     permission_required = 'recipients.delete_recipient'
@@ -192,6 +219,7 @@ class RecipientDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVie
 
 
 class StartMailingView(LoginRequiredMixin, PermissionRequiredMixin, SingleObjectMixin, View):
+    """Представление для запуска рассылок. Доступно только для незавершённых рассылок. Обновляет статус рассылки на ‘запущена’ и обрабатывает её."""
     model = Mailing
     success_url = reverse_lazy('recipients:mailing_list')  # Переход после завершения
     pk_url_kwarg = 'mailing_id'
@@ -222,6 +250,8 @@ class StartMailingView(LoginRequiredMixin, PermissionRequiredMixin, SingleObject
 
 
 class MailingStatisticsView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """Представление для отображения статистики рассылки. Доступно менеджерам для всех рассылок и пользователям для
+    их собственных. Показывает успешные, неуспешные и общее количество попыток отправки."""
     model = Mailing
     template_name = 'recipients/mailing_statistics.html'
     context_object_name = 'mailing'
@@ -246,6 +276,12 @@ class MailingStatisticsView(LoginRequiredMixin, PermissionRequiredMixin, DetailV
 
 @method_decorator(cache_page(60*15), name='dispatch')
 class ManagerUserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """
+    Представление для отображения списка пользователей сервиса.
+    - Кэширует данные на 15 минут для оптимизации.
+    - Доступно только для авторизованных пользователей с правом 'users.can_view_user'.
+    - Исключает менеджеров и суперпользователей из списка.
+    """
     model = User
     template_name = 'recipients/manager_user_list.html'
     context_object_name = 'users'
@@ -256,6 +292,12 @@ class ManagerUserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
 
 
 class ToggleUserStatusView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Представление для изменения статуса пользователя (активация/деактивация).
+    - Используется для блокировки и разблокировки пользователей.
+    - Доступно только для авторизованных пользователей с правом 'users.can_change_user'.
+    - Исключает возможность блокировки менеджеров и суперпользователей.
+    """
     model = User
     fields = []  # Поле пустое, так как изменение выполняется программно
     template_name = 'recipients/toggle_user_status.html'
@@ -284,6 +326,12 @@ class ToggleUserStatusView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
 
 
 class CompleteMailingView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """
+    Представление для завершения рассылки (изменение статуса на 'completed').
+    - Доступно только для авторизованных пользователей с правом 'recipients.change_mailing'.
+    - Меняет статус рассылки на завершённый, если она ещё не завершена.
+    - Выводит соответствующее сообщение пользователю в зависимости от результата операции.
+    """
     model = Mailing
     permission_required = 'recipients.change_mailing'
 
