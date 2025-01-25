@@ -10,7 +10,7 @@
 <body>
     <header>
         <div class="container">
-            <h1><a href="/">Мой сайт</a></h1>
+            <h1><a href="{% url 'recipients:home' %}">Мой сайт</a></h1>
             <nav>
                 <ul>
                     <li><a href="{% url 'recipients:home' %}">Главная</a></li>
@@ -22,6 +22,9 @@
                         <li><a href="{% url 'recipients:mailing_list' %}">Рассылки</a></li>
                         <li><a href="{% url 'recipients:message_list' %}">Сообщения</a></li>
                         <li><a href="{% url 'recipients:recipient_list' %}">Получатели</a></li>
+                    {% if user.is_manager %}
+                        <li><a href="{% url 'recipients:manager_user_list' %}">Наши клиенты</a></li>
+                    {% endif %}
                         <li><a href="{% url 'account_logout' %}">Выход</a></li>
                     {% endif %}
                 </ul>

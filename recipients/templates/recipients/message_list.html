@@ -2,7 +2,9 @@
 {% block title %} Мои сообщения {% endblock %}
 {% block content %}
 <h1>Список сообщений</h1>
+{% if not user.is_manager %}
 <p><a href="{% url 'recipients:message_create' %}">Создать сообщение</a></p>
+{% endif %}
 {% if object_list %}
     <table border="1">
         <thead>

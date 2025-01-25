@@ -3,7 +3,11 @@
 {% block title %}Создание рассылки{% endblock %}
 
 {% block content %}
+{% if is_edit %}
+<h2>Редактирование рассылки</h2>
+{% else %}
 <h2>Создать рассылку</h2>
+{% endif %}
 <form method="post">  
     {% csrf_token %}
     {{ form.as_p }}

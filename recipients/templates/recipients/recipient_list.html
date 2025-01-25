@@ -2,7 +2,9 @@
 {% block title %} Мои получатели {% endblock %}
 {% block content %}
 <h1>Список получателей рассылок</h1>
+{% if not user.is_manager %}
 <p><a href="{% url 'recipients:recipient_create' %}">Добавить получателя</a></p>
+{% endif %}
 {% if object_list %}
 <table border="1">
     <thead>
@@ -20,7 +22,9 @@
                 <td>{{ recipient.email }}</td>
                 <td>{{ recipient.full_name }}</td>
                 <td>{{ recipient.comment }}</td>
+                {% if not user.is_manager %}
                 <td><a href="{% url 'recipients:recipient_delete' recipient.id %}">Удалить</a></td>
+                {% endif %}
             </tr>
         {% endfor %}
     </tbody>

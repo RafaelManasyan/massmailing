@@ -4,8 +4,10 @@
 
 {% block content %}
 <h2>Детали сообщения</h2>
+{% if not user.is_manager %}
 <p><a href="{% url 'recipients:message_update' message.id %}">Редактировать</a></p>
 <p><a href="{% url 'recipients:message_delete' message.id %}">Удалить</a></p>
+{% endif %}
 <ul>
     <li>ID: {{ message.id }}</li>
     <li>Название: {{ message.topic }}</li>

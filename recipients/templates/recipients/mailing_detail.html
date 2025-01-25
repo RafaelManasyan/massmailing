@@ -4,17 +4,19 @@
 
 {% block content %}
 <h2>Детали рассылки</h2>
-{% if not mailing.status == 'completed' %}
+{% if not mailing.status == 'completed' and not user.is_manager %}
 <form method="post" action="{% url 'recipients:mailing_start' mailing.id %}">
     {% csrf_token %}
     <button type="submit">Запустить рассылку</button>
 </form>
 {% endif %}
 <p><a href="{% url 'recipients:mailing_statistics' mailing.id %}">Посмотреть статистику</a></p>
-{% if not mailing.status == 'completed' %}
+{% if not mailing.status == 'completed' and not user.is_manager %}
 <p><a href="{% url 'recipients:mailing_update' mailing.id %}">Редактировать</a></p>
 {% endif %}
+{% if not user.is_manager %}
 <p><a href="{% url 'recipients:mailing_delete' mailing.id %}">Удалить</a></p>
+{% endif %}
 <ul>
     <li>ID: {{ object.id }}</li>
     <li>Дата первого отправления: {{ object.first_sending_datetime }}</li>

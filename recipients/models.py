@@ -7,7 +7,7 @@ class Recipient(models.Model):
     full_name = models.CharField(max_length=150)
     comment = models.TextField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_recipients',
-                             verbose_name='Пользователь', null=True)
+                             verbose_name='Владелец', null=True)
 
     def __str__(self):
         return f'Получатель: {self.full_name}'
@@ -15,13 +15,16 @@ class Recipient(models.Model):
     class Meta:
         verbose_name = 'получатель'
         verbose_name_plural = 'получатели'
+        permissions = [
+            ('can_view_all_recipients', 'Может просматривать всех получателей')
+        ]
 
 
 class Message(models.Model):
     topic = models.CharField(max_length=350)
     body = models.TextField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_messages',
-                             verbose_name='Пользователь', null=True)
+                             verbose_name='Владелец', null=True)
 
     def __str__(self):
         return f'Сообщение: {self.topic}'
@@ -29,6 +32,9 @@ class Message(models.Model):
     class Meta:
         verbose_name = 'сообщение'
         verbose_name_plural = 'сообщения'
+        permissions = [
+            ('can_view_all_messages', 'Может просматривать все сообщения')
+        ]
 
 
 class Mailing(models.Model):
@@ -43,7 +49,7 @@ class Mailing(models.Model):
     message = models.ForeignKey('Message', verbose_name='Сообщение', on_delete=models.CASCADE)
     recipients = models.ManyToManyField('Recipient', verbose_name='Получатели')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_mailings',
-                             verbose_name='Пользователь', null=True)
+                             verbose_name='Владелец', null=True)
 
     def __str__(self):
         return f"Рассылка: {self.status}"
@@ -52,6 +58,10 @@ class Mailing(models.Model):
         verbose_name = 'рассылка'
         verbose_name_plural = 'рассылки'
         ordering = ['-first_sending_datetime']
+        permissions = [
+            ('can_view_all_mailings', 'Может просматривать все рассылки'),
+            ('can_view_mailing_statistics', 'Может просматривать статистику рассылки'),
+        ]
 
 
 class MailingAttempt(models.Model):
@@ -71,3 +81,6 @@ class MailingAttempt(models.Model):
     class Meta:
         verbose_name = 'Попытка рассылки'
         verbose_name_plural = 'Попытки рассылки'
+        permissions = [
+            ('can_view_all_attempts', 'Может просматривать все попытки рассылок'),
+        ]
