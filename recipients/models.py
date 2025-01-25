@@ -3,6 +3,12 @@ from django.db import models
 
 
 class Recipient(models.Model):
+    """
+    Модель для хранения информации о получателях.
+    - Уникальный email каждого получателя.
+    - Полное имя и комментарии о получателе.
+    - Привязка к пользователю, который создал запись.
+    """
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=150)
     comment = models.TextField()
@@ -21,6 +27,12 @@ class Recipient(models.Model):
 
 
 class Message(models.Model):
+    """
+    Модель для хранения сообщений рассылки.
+    - Заголовок сообщения (topic).
+    - Текст сообщения (body).
+    - Привязка сообщения к пользователю.
+    """
     topic = models.CharField(max_length=350)
     body = models.TextField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_messages',
@@ -38,6 +50,14 @@ class Message(models.Model):
 
 
 class Mailing(models.Model):
+    """
+    Модель для управления рассылками.
+    - Даты начала и завершения рассылки.
+    - Статус рассылки (создано, запущено, завершено).
+    - Сообщение, связанное с рассылкой.
+    - Получатели рассылки.
+    - Пользователь, создавший рассылку.
+    """
     STATUS_CHOICES = [
         ('created', 'Создано'),
         ('started', 'Запущено'),
@@ -65,6 +85,13 @@ class Mailing(models.Model):
 
 
 class MailingAttempt(models.Model):
+    """
+    Модель для хранения попыток рассылки.
+    - Дата и время попытки.
+    - Статус попытки (успешно или неуспешно).
+    - Ответ почтового сервера.
+    - Привязка к конкретной рассылке и получателю.
+    """
     STATUS_CHOICES = [
         ('successful', 'Успешно'),
         ('unsuccessful', 'Неуспешно'),
