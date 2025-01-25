@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if action == 'block' %}
+        Блокировка пользователя
+    {% elif action == 'unblock' %}
+        Разблокировка пользователя
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>
+    {% if action == 'block' %}
+        Блокировка пользователя
+    {% elif action == 'unblock' %}
+        Разблокировка пользователя
+    {% endif %}
+</h2>
+
+<p>
+    Вы действительно хотите
+    {% if action == 'block' %}
+        заблокировать
+    {% elif action == 'unblock' %}
+        разблокировать
+    {% endif %}
+    пользователя <strong>{{ user.get_full_name }}</strong> ({{ user.email }})?
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">
+        {% if action == 'block' %}
+            Да, заблокировать
+        {% elif action == 'unblock' %}
+            Да, разблокировать
+        {% endif %}
+    </button>
+    <a href="{% url 'recipients:manager_user_list' %}">Отмена</a>
+</form>
+{% endblock %}
