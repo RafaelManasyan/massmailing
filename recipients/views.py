@@ -47,7 +47,7 @@ def home_view(request):
     return render(request, 'home.html', context)
 
 
-@method_decorator(cache_page(60*15), name='dispatch')
+# @method_decorator(cache_page(60*15), name='dispatch')
 class MailingListView(LoginRequiredMixin, ListView):
     """
     Представление для отображения списка рассылок.
@@ -113,6 +113,12 @@ class MailingUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         context['is_edit'] = True  # Указываем, что это редактирование
         return context
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['message'].queryset = form.fields['message'].queryset.filter(user=self.request.user).select_related('user')
+        form.fields['recipients'].queryset = form.fields['recipients'].queryset.filter(user=self.request.user).select_related('user')
+        return form
+
 
 class MailingDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Mailing
@@ -121,7 +127,8 @@ class MailingDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
 
 
 class MailingDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    """Представление для отображения деталей конкретной рассылки. Менеджеры могут видеть все рассылки, а пользователи — только свои"""
+    """Представление для отображения деталей конкретной рассылки. Менеджеры могут видеть все рассылки, а пользователи
+    — только свои"""
     model = Mailing
     permission_required = 'recipients.can_view_mailing_detail'
 
@@ -164,7 +171,8 @@ class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
 
 
 class MessageDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    """Представление для удаления сообщений. Доступно только пользователям с правом удаления сообщений. Пользователи могут удалять только свои сообщения."""
+    """Представление для удаления сообщений. Доступно только пользователям с правом удаления сообщений. Пользователи
+    могут удалять только свои сообщения."""
     model = Message
     success_url = reverse_lazy('recipients:message_list')
     permission_required = 'recipients.delete_message'
@@ -197,7 +205,8 @@ class RecipientListView(LoginRequiredMixin, ListView):
 
 
 class RecipientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    """“Представление для создания новых клиентов. Автоматически связывает клиента с текущим пользователем. Доступно только для пользователей с правом добавления клиентов.”"""
+    """“Представление для создания новых клиентов. Автоматически связывает клиента с текущим пользователем. Доступно
+    только для пользователей с правом добавления клиентов.”"""
     model = Recipient
     fields = ['email', 'full_name', 'comment',]
     success_url = reverse_lazy('recipients:recipient_list')
@@ -209,7 +218,8 @@ class RecipientCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
 
 
 class RecipientDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    """Представление для удаления клиентов. Пользователи могут удалять только своих клиентов. Доступно только с соответствующими правами."""
+    """Представление для удаления клиентов. Пользователи могут удалять только своих клиентов. Доступно только с
+    соответствующими правами."""
     model = Recipient
     success_url = reverse_lazy('recipients:recipient_list')
     permission_required = 'recipients.delete_recipient'
@@ -219,10 +229,12 @@ class RecipientDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVie
 
 
 class StartMailingView(LoginRequiredMixin, PermissionRequiredMixin, SingleObjectMixin, View):
-    """Представление для запуска рассылок. Доступно только для незавершённых рассылок. Обновляет статус рассылки на ‘запущена’ и обрабатывает её."""
+    """Представление для запуска рассылок. Доступно только для незавершённых рассылок. Обновляет статус рассылки на
+    ‘запущена’ и обрабатывает её."""
     model = Mailing
     success_url = reverse_lazy('recipients:mailing_list')  # Переход после завершения
     pk_url_kwarg = 'mailing_id'
+    permission_required = 'recipients.can_start_mailing'
 
     def post(self, request, *args, **kwargs):
         mailing = self.get_object()

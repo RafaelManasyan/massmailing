@@ -81,6 +81,7 @@ class Mailing(models.Model):
         permissions = [
             ('can_view_all_mailings', 'Может просматривать все рассылки'),
             ('can_view_mailing_statistics', 'Может просматривать статистику рассылки'),
+            ('can_start_mailing', 'Может отправлять рассылки')
         ]
 
 
